@@ -1,31 +1,48 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // ← ajouté
-
 const app = express();
 
-app.use(cors()); // ← ajouté
+const VERIFY_TOKEN = 'rossindji123'; // Doit être le même que celui mis sur Facebook
+
 app.use(bodyParser.json());
 
-app.post('/webhook', (req, res) => {
-  const message = req.body.message.toLowerCase();
-  let response = "Je n'ai pas compris votre question.";
+// Route GET pour vérification du Webhook (Facebook)
+app.get('/webhook', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
 
-  if (message.includes('horaire')) {
-    response = 'Nous sommes ouverts du lundi au vendredi de 9h à 18h.';
-  } else if (message.includes('adresse')) {
-    response = 'Notre adresse est 10 rue de la République, Paris.';
-  } else if (message.includes('contact')) {
-    response = 'Vous pouvez nous contacter au 01 23 45 67 89.';
-  } else if (message.includes('services')) {
-    response = 'Nous offrons des services en ligne, de conseil, et de réservation.';
-  } else if (message.includes('merci')) {
-    response = 'Avec plaisir 😊 !';
+  if (mode && token === VERIFY_TOKEN) {
+    console.log(' Webhook vérifié avec succès');
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
   }
-
-  res.json({ reply: response });
 });
 
-app.listen(3001, () => console.log('Bot actif sur http://localhost:3001'));
+// Route POST pour recevoir les messages de Messenger
+app.post('/webhook', (req, res) => {
+  const body = req.body;
 
+  if (body.object === 'page') {
+    body.entry.forEach(entry => {
+      const event = entry.messaging[0];
+      const senderId = event.sender.id;
+      const message = event.message?.text;
 
+      if (message) {
+        console.log(` Message reçu : ${message}`);
+        // Réponse simulée (juste console.log pour l'instant)
+        console.log(` Répondre à ${senderId} : "Merci pour ton message"`);
+      }
+    });
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Bot actif sur http://localhost:${PORT}`);
+});
