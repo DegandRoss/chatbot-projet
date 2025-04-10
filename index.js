@@ -31,7 +31,7 @@ app.post('/webhook', (req, res) => {
   } else if (message.includes('horaire')) {
     response = 'Nous sommes ouverts du lundi au vendredi de 9h à 18h.';
   } else if (message.includes('merci')) {
-    response = 'Avec plaisir 😊';
+    response = 'Avec plaisir ';
   }
 
   res.json({ reply: response });
