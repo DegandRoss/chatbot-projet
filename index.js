@@ -2,13 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const cors = require('cors');
-const app = express();
+require('dotenv').config();  // Charger les variables d’environnement
 
+const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// mon token Hugging Face
-const HF_TOKEN = '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';
+const HF_TOKEN = process.env.HF_TOKEN;
 
 // Fonction qui envoie le message à Hugging Face et récupère la réponse
 async function getAIResponse(message) {
@@ -45,5 +45,5 @@ app.post('/webhook', async (req, res) => {
 
 // Lancer le serveur
 app.listen(3001, () => {
-  console.log(' RossindjiBot avec IA actif sur http://localhost:3001');
+  console.log(' RossindjiBot avec IA (via .env) actif sur http://localhost:3001');
 });
