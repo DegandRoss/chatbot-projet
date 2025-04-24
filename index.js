@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const cors = require('cors');
-require('dotenv').config();  // Charger les variables d’environnement
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
@@ -10,12 +10,12 @@ app.use(bodyParser.json());
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-// Fonction qui envoie le message à Hugging Face et récupère la réponse
+//  Modèle Flan-T5 pour des réponses plus logiques
 async function getAIResponse(message) {
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium',
-      { inputs: message  },
+      'https://api-inference.huggingface.co/models/google/flan-t5-base',
+      { inputs: message },
       {
         headers: {
           Authorization: `Bearer ${HF_TOKEN}`,
@@ -24,7 +24,7 @@ async function getAIResponse(message) {
       }
     );
 
-    const generated = response.data?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
+    const generated = response.data?.[0]?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
     return generated;
   } catch (error) {
     console.error('Erreur IA HuggingFace :', error.message);
@@ -32,7 +32,6 @@ async function getAIResponse(message) {
   }
 }
 
-// Route POST pour recevoir les messages de l’interface React
 app.post('/webhook', async (req, res) => {
   const userMessage = req.body.message;
   console.log(` Message reçu : ${userMessage}`);
@@ -43,7 +42,6 @@ app.post('/webhook', async (req, res) => {
   res.json({ reply: aiResponse });
 });
 
-// Lancer le serveur
 app.listen(3001, () => {
-  console.log(' RossindjiBot avec IA (via .env) actif sur http://localhost:3001');
+  console.log(' RossindjiBot IA (flan-t5-base) actif sur http://localhost:3001');
 });
