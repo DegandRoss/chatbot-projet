@@ -15,7 +15,7 @@ async function getAIResponse(message) {
   try {
     const response = await axios.post(
       'https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium',
-      { inputs: { text: message } },
+      { inputs: message  },
       {
         headers: {
           Authorization: `Bearer ${HF_TOKEN}`,
