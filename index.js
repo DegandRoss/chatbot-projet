@@ -1,43 +1,49 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 const cors = require('cors');
 const app = express();
-
-const VERIFY_TOKEN = 'rossindji123'; // pour Messenger (au cas où)
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// Route GET pour vérification du webhook
-app.get('/webhook', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
+// mon token Hugging Face
+const HF_TOKEN = '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';
 
-  if (mode && token === VERIFY_TOKEN) {
-    res.status(200).send(challenge);
-  } else {
-    res.sendStatus(403);
+// Fonction qui envoie le message à Hugging Face et récupère la réponse
+async function getAIResponse(message) {
+  try {
+    const response = await axios.post(
+      'https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium',
+      { inputs: { text: message } },
+      {
+        headers: {
+          Authorization: `Bearer ${HF_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const generated = response.data?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
+    return generated;
+  } catch (error) {
+    console.error('Erreur IA HuggingFace :', error.message);
+    return "Désolé, je ne peux pas répondre maintenant.";
   }
+}
+
+// Route POST pour recevoir les messages de l’interface React
+app.post('/webhook', async (req, res) => {
+  const userMessage = req.body.message;
+  console.log(` Message reçu : ${userMessage}`);
+
+  const aiResponse = await getAIResponse(userMessage);
+  console.log(` Réponse IA : ${aiResponse}`);
+
+  res.json({ reply: aiResponse });
 });
 
-// Route POST pour recevoir les messages du chatbot
-app.post('/webhook', (req, res) => {
-  const message = req.body.message?.toLowerCase();
-  let response = "Je n'ai pas compris votre question.";
-
-  if (message.includes('bonjour')) {
-    response = "Salut ! Je suis RossindjiBot, comment puis-je t’aider ?";
-  } else if (message.includes('horaire')) {
-    response = 'Nous sommes ouverts du lundi au vendredi de 9h à 18h.';
-  } else if (message.includes('merci')) {
-    response = 'Avec plaisir ';
-  }
-
-  res.json({ reply: response });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Bot actif sur http://localhost:${PORT}`);
+// Lancer le serveur
+app.listen(3001, () => {
+  console.log(' RossindjiBot avec IA actif sur http://localhost:3001');
 });
