@@ -10,11 +10,11 @@ app.use(bodyParser.json());
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-//  Modèle Flan-T5 pour des réponses plus logiques
+// Zephyr 7B Alpha pour des réponses plus naturelles
 async function getAIResponse(message) {
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/google/flan-t5-base',
+      'https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-alpha',
       { inputs: message },
       {
         headers: {
@@ -43,5 +43,5 @@ app.post('/webhook', async (req, res) => {
 });
 
 app.listen(3001, () => {
-  console.log(' RossindjiBot IA (flan-t5-base) actif sur http://localhost:3001');
+  console.log(' RossindjiBot IA (Zephyr 7B Alpha) actif sur http://localhost:3001');
 });
