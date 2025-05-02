@@ -10,11 +10,11 @@ app.use(bodyParser.json());
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-// GPT-2 : autre modèle de huggingface
+// Modèle Flan-T5 pour des réponses plus logiques
 async function getAIResponse(message) {
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/gpt2',
+      'https://api-inference.huggingface.co/models/google/flan-t5-base',
       { inputs: message },
       {
         headers: {
@@ -24,7 +24,7 @@ async function getAIResponse(message) {
       }
     );
 
-    const generated = response.data?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
+    const generated = response.data?.[0]?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
     return generated;
   } catch (error) {
     console.error('Erreur IA HuggingFace :', error.message);
@@ -43,5 +43,5 @@ app.post('/webhook', async (req, res) => {
 });
 
 app.listen(3001, () => {
-  console.log(' RossindjiBot IA (GPT-2) actif sur http://localhost:3001');
+  console.log(' RossindjiBot IA (flan-t5-base) actif sur http://localhost:3001');
 });
