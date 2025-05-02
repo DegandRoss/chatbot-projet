@@ -10,11 +10,11 @@ app.use(bodyParser.json());
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-// Falcon 7B Instruct pour des réponses logiques
+// Gemma 2B IT : modèle de génération d'instruction (Google)
 async function getAIResponse(message) {
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct',
+      'https://api-inference.huggingface.co/models/google/gemma-2-2b-it',
       { inputs: message },
       {
         headers: {
@@ -24,7 +24,7 @@ async function getAIResponse(message) {
       }
     );
 
-    const generated = response.data?.[0]?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
+    const generated = response.data?.generated_text || "Je n'ai pas compris. Peux-tu reformuler ?";
     return generated;
   } catch (error) {
     console.error('Erreur IA HuggingFace :', error.message);
@@ -43,5 +43,5 @@ app.post('/webhook', async (req, res) => {
 });
 
 app.listen(3001, () => {
-  console.log(' RossindjiBot IA (Falcon 7B Instruct) actif sur http://localhost:3001');
+  console.log(' RossindjiBot IA (Gemma 2B IT) actif sur http://localhost:3001');
 });
