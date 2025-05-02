@@ -10,11 +10,11 @@ app.use(bodyParser.json());
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-// Gemma 2B IT : modèle de génération d'instruction (Google)
+// GPT-2 : autre modèle de huggingface
 async function getAIResponse(message) {
   try {
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/google/gemma-2-2b-it',
+      'https://api-inference.huggingface.co/models/gpt2',
       { inputs: message },
       {
         headers: {
@@ -43,5 +43,5 @@ app.post('/webhook', async (req, res) => {
 });
 
 app.listen(3001, () => {
-  console.log(' RossindjiBot IA (Gemma 2B IT) actif sur http://localhost:3001');
+  console.log(' RossindjiBot IA (GPT-2) actif sur http://localhost:3001');
 });
